@@ -1,0 +1,11 @@
+__pycache__
+.vscode/
+spowork.code-workspace
+
+server_program/
+sql/
+test/
+
+hiddenInfo.py
+*.sh
+*.csv
