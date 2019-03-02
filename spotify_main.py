@@ -2,13 +2,12 @@
 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
-import json
 import datetime
 import re
 import mysql.connector
 import hiddenInfo
-import requests
 import ezslack
+import wordpress_post
 
 conn = mysql.connector.connect(user=hiddenInfo.db_user, password=hiddenInfo.db_password, host=hiddenInfo.db_host, database=hiddenInfo.db_database)
 
@@ -17,6 +16,7 @@ regi_date_now = datetime.datetime.now().strftime("%Y-%m-%d")
 regi_count = 0
 slack_nofication_message = "```"
 slack = ezslack.Slack(url=hiddenInfo.slack_hook,username="最新曲登録ジョブ",icon_emoji=":white_check_mark:")
+track_id_wp = []
 
 #検索する日付をシーズンごとにする
 def season_year():
@@ -82,7 +82,8 @@ def db_test():
     global slack_nofication_message
     slack_nofication_message += "```"
     slack.send(text=message_text)
-    slack.send(text=slack_nofication_message)
+    if(regi_count > 0):
+        slack.send(text=slack_nofication_message)
 
 def main(search_track_name,year_lim,search_artist,program_no,timing,anime_title):
 
@@ -138,6 +139,8 @@ def main(search_track_name,year_lim,search_artist,program_no,timing,anime_title)
                     #検索結果が疑わしいのでフラグを立てる
                     need_to_confirm = 1
                     print("トラック名のみの検索です")
+        else:
+            need_to_confirm = 1
 
     print(str(total_track)+"件")
 
@@ -198,11 +201,14 @@ def main(search_track_name,year_lim,search_artist,program_no,timing,anime_title)
                     global slack_nofication_message
                     regi_count += 1
 
-                    #追加された曲をSlackで通知
+                    #追加された曲をSlackで通知する為，タイトル名とトラック名を追記
                     check_mark = " - "
                     if(need_to_confirm == 1):
                         check_mark = "(x)"
+                    else:
+                        track_id_wp.append(track_id)
                     slack_nofication_message += check_mark + anime_title + " - " + spotify_track_name + "\n"
+                    
 
                     #一般情報の登録
                     cur_regi = conn.cursor(buffered=True)
@@ -212,6 +218,9 @@ def main(search_track_name,year_lim,search_artist,program_no,timing,anime_title)
                     cur_regi.execute(query,info)
                     cur_regi.close()
                     cur_regi_confirm.close()
+
+                    #WordPressに投稿
+                    wordpress_post.wp_post(anime_title,spotify_track_name,track_id,artist_name,img_url,release_date,need_to_confirm)
 
                 for group in range(0,len(track_info[total]["album"]["artists"])):
                     #アーティストが登録済みか確認
