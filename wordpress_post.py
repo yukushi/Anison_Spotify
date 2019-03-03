@@ -1,8 +1,33 @@
 from wordpress_xmlrpc import Client, WordPressPost
 from wordpress_xmlrpc.methods.posts import GetPosts, NewPost
 from wordpress_xmlrpc.methods.users import GetUserInfo
+from wordpress_xmlrpc import WordPressTerm
+from wordpress_xmlrpc.methods import taxonomies
 from datetime import datetime
 import hiddenInfo
+
+def add_child_category(cat_set,title):
+    wp = Client(hiddenInfo.wp_URL,hiddenInfo.wp_author,hiddenInfo.wp_pass)
+    categories = wp.call(taxonomies.GetTerms('category'))
+    for category_count in range(len(categories)):
+        str_category = str(categories[category_count])
+        if(str_category == title):
+            # print("カテゴリは既にあります")
+            return 0
+    for category_count in range(len(categories)):
+        str_category = str(categories[category_count])
+        if(str_category == cat_set):
+            try:
+                # print(categories[category_count])
+                child_cat = WordPressTerm()
+                child_cat.taxonomy = 'category'
+                child_cat.parent = categories[category_count].id
+                child_cat.name = title
+                child_cat.id = wp.call(taxonomies.NewTerm(child_cat))
+                # print("子カテゴリを作ります")
+            except:
+                pass
+                # print("カテゴリの作成失敗")
 
 def wp_post(anime_title,track_name,track_id,artists,img_url,release_date,flag):
 
@@ -80,6 +105,10 @@ def wp_post(anime_title,track_name,track_id,artists,img_url,release_date,flag):
         season = "冬アニメ"
     cat_set = year + season
     cat.append(cat_set)
+
+    #Add child category
+    add_child_category(cat_set,anime_title)
+    cat.append(anime_title)
 
     tag_cat = {'post_tag': tag,'category': cat}
 
