@@ -1,0 +1,13 @@
+.button_link{
+    color:white;
+    text-decoration: none;
+}
+
+.button_link:hover{
+    color:rgb(255, 208, 154);
+    text-decoration: none;
+}
+
+.flagbg{
+    background-color:#255555;
+}

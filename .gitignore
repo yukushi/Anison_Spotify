@@ -5,7 +5,9 @@ spowork.code-workspace
 server_program/
 sql/
 test/
+database_page/info/
 
 hiddenInfo.py
 *.sh
 *.csv
+*bootstrap*
