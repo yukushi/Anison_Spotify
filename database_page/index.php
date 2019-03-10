@@ -42,7 +42,8 @@ jQuery(function($){
 <h1>Spotify アニソンデータベース</h1>
 
 <form class="m-4" action="index.php" method="get">
-<a href="../index.php">戻る</a>
+<a href="../index.php" class="mr-3">アニソンチェッカーへ戻る</a>
+<a href="about.php">About</a><br>
 <button type="submit" class="btn btn-info m-3" name="anime_data" value="recently">最新曲</button>
 <button type="submit" class="btn btn-info m-3" name="anime_data" value="2019-01-01">2019年冬アニメ登録状況</button>
 <button type="submit" class="btn btn-info m-3" name="anime_data" value="2018-10-01">2018年秋アニメ登録状況</button>
